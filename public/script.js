@@ -48,19 +48,14 @@ function getCategoryIcon(categoryTitle) {
 
 async function fetchNaturalEvents() {
     try {
-        // We fetch directly from NASA
         const response = await fetch(NASA_API_URL);
 
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
         
-        // --- 
-        // CHANGE 2: The data from NASA is an object { events: [...] }
-        // We must extract the 'events' array from it.
-        // ---
         const data = await response.json();
-        const events = data.events; // This is the new, crucial line
+        const events = data.events; 
 
         if (!events || events.length === 0) {
             loadingMessage.innerText = "No active events found.";
@@ -70,8 +65,16 @@ async function fetchNaturalEvents() {
         loadingMessage.style.display = 'none';
 
         events.forEach(event => {
+            // --- NEW: Get the unique event ID from NASA ---
+            const eventId = event.id;
+
+            // --- 1. Create the Event Card ---
             const card = document.createElement('div');
             card.classList.add('event-card');
+            
+            // --- NEW: Set the card's ID to the event ID ---
+            // This is how we'll find it later
+            card.id = eventId; 
             
             const eventDate = new Date(event.geometry[0].date).toLocaleDateString();
             const category = event.categories[0].title;
@@ -92,11 +95,11 @@ async function fetchNaturalEvents() {
             `;
             eventsContainer.appendChild(card);
 
-            // Add marker to map
+            // --- 2. Add marker to map ---
             if (map) {
                 const coords = getEventCoordinates(event);
                 if (coords) {
-                    L.marker([coords.lat, coords.lon])
+                    const marker = L.marker([coords.lat, coords.lon])
                         .addTo(map)
                         .bindPopup(`
                             <strong>${event.title}</strong>
@@ -105,6 +108,36 @@ async function fetchNaturalEvents() {
                             <br>
                             Date: ${eventDate}
                         `);
+
+                    // --- NEW: Add the click listener to the marker ---
+                    marker.on('click', () => {
+                        // Find the card on the page using the ID
+                        const cardElement = document.getElementById(eventId);
+                        
+                        if (cardElement) {
+                            // Scroll the page to the card
+                            cardElement.scrollIntoView({
+                                behavior: 'smooth', // Smooth scroll
+                                block: 'center'     // Put it in the center of the screen
+                            });
+
+                            // --- Add the highlight animation ---
+                            
+                            // Remove the class first (if it's already there)
+                            cardElement.classList.remove('highlight');
+                            
+                            // This is a small "hack" to force the animation to restart
+                            void cardElement.offsetWidth; 
+                            
+                            // Add the class to trigger the animation
+                            cardElement.classList.add('highlight');
+
+                            // Remove the class after the animation finishes
+                            setTimeout(() => {
+                                cardElement.classList.remove('highlight');
+                            }, 1500); // 1.5 seconds, matching our CSS
+                        }
+                    });
                 }
             }
         });
@@ -113,7 +146,6 @@ async function fetchNaturalEvents() {
 
     } catch (error) {
         console.error('Error fetching data:', error);
-        // This is the error message you see, now with more detail
         loadingMessage.innerHTML = `
             <p style="color: red; font-weight: bold;">
                 Could not fetch data. Please try again later.
