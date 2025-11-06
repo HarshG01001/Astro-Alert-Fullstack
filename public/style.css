@@ -146,3 +146,26 @@ main {
     background-color: #082f70;
 }
 
+/* This is the highlight class we will add with JavaScript */
+.event-card.highlight {
+  /* This triggers the 'highlight-animation' below.
+    It runs once, lasts 1.5 seconds, and uses an 'ease-out' curve.
+  */
+  animation: highlight-animation 1.5s ease-out;
+}
+
+/* This defines the actual animation steps */
+@keyframes highlight-animation {
+  /* Start */
+  0% {
+    background-color: var(--highlight-color);
+    transform: scale(1.02); /* Slightly larger */
+    box-shadow: 0 8px 25px rgba(255, 230, 100, 0.7);
+  }
+  /* End */
+  100% {
+    background-color: var(--card-bg-color); /* Back to normal */
+    transform: scale(1);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.07);
+  }
+}
