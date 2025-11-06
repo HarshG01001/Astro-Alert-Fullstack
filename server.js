@@ -26,7 +26,11 @@ app.get('/api/events', async (req, res) => {
         const NASA_EONET_API = 'https://eonet.gsfc.nasa.gov/api/v3/events?status=open&limit=30';
         
         // 1. Make a request to the NASA API using axios
-        const response = await axios.get(NASA_EONET_API);
+        const response = await axios.get(NASA_EONET_API, {
+    headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36'
+    }
+});
         
         // 2. Get the specific data we want (the list of events)
         const events = response.data.events;
