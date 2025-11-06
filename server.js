@@ -14,14 +14,11 @@ const HOST = '0.0.0.0';
 // 1. Enable CORS for all routes (good practice)
 app.use(cors());
 
-// 2. Tell Express to serve all files from the 'public' folder
+// 2. Tell Express to serve all files from the 'public' folder.
+// This ALSO serves 'index.html' at the root URL.
 app.use(express.static(path.join(__dirname, 'public')));
 
-// 3. A "catch-all" route to serve index.html
-// This ensures that visiting your main URL serves the page
-app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'index.html'));
-});
+// --- (The crashing 'app.get(*)' route has been removed) ---
 
 // --- Start the Server ---
 app.listen(PORT, HOST, () => {
