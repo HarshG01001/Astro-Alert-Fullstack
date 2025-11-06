@@ -1,80 +1,78 @@
 // --- DOM Elements ---
 const eventsContainer = document.getElementById('events-container');
 const loadingMessage = document.getElementById('loading-message');
+const mapElement = document.getElementById('map');
 
-// --- API URL ---
-const API_URL = '/api/events';
+// ---
+// CHANGE 1: We use the NASA API URL directly
+// ---
+const NASA_API_URL = 'https://eonet.gsfc.nasa.gov/api/v3/events?status=open&limit=30';
 
-// --- NEW: Map Initialization ---
-// Initialize the map and set its view to a global perspective
-// [20, 0] is a good center latitude, 2 is a good zoom level to see the world.
-const map = L.map('map').setView([20, 0], 2);
-
-// Add the "tiles" to the map (the actual map images)
-// We're using OpenStreetMap, which is free.
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-}).addTo(map);
-
-
-// --- Functions ---
-
-/**
- * Gets the correct icon for each event category.
- */
-function getCategoryIcon(categoryTitle) {
-    const title = categoryTitle.toLowerCase();
-    if (title.includes('wildfire')) return 'flame';
-    if (title.includes('volcano')) return 'mountain';
-    if (title.includes('storm')) return 'cloud-lightning';
-    if (title.includes('ice')) return 'snowflake';
-    if (title.includes('flood')) return 'cloud-drizzle';
-    if (title.includes('landslide')) return 'mountain';
-    if (title.includes('earthquake')) return 'activity';
-    return 'globe-2'; // Default icon
+// --- Map Initialization ---
+let map;
+try {
+    map = L.map(mapElement).setView([20, 0], 2);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+    }).addTo(map);
+} catch (e) {
+    console.error("Could not initialize map:", e);
+    if(mapElement) mapElement.innerHTML = "Map could not be loaded.";
 }
 
-/**
- * NEW: Safely extracts coordinates from an EONET event.
- * Handles both "Point" and "Polygon" event types.
- */
+// --- Functions ---
 function getEventCoordinates(event) {
-    const geometry = event.geometry[0]; // Get the most recent geometry
-    
+    const geometry = event.geometry[0];
     if (geometry.type === 'Point') {
-        // EONET uses [longitude, latitude]
         const [lon, lat] = geometry.coordinates;
         return { lat, lon };
     } else if (geometry.type === 'Polygon') {
-        // For polygons, just take the first coordinate pair
-        // EONET format: [[[lon, lat], [lon, lat], ...]]
         const [lon, lat] = geometry.coordinates[0][0];
         return { lat, lon };
     }
-    return null; // No valid coordinates
+    return null;
 }
 
+function getCategoryIcon(categoryTitle) {
+    const lowerCaseTitle = categoryTitle.toLowerCase();
+    
+    if (lowerCaseTitle.includes('wildfire')) return 'flame';
+    if (lowerCaseTitle.includes('volcano')) return 'mountain';
+    if (lowerCaseTitle.includes('storm')) return 'wind';
+    if (lowerCaseTitle.includes('ice')) return 'snowflake';
+    if (lowerCaseTitle.includes('earthquake')) return 'activity';
+    if (lowerCaseTitle.includes('landslide')) return 'mountain-2';
+    
+    return 'globe-2';
+}
 
-/**
- * Fetches event data from our back-end API.
- */
 async function fetchNaturalEvents() {
     try {
-        const response = await fetch(API_URL);
+        // We fetch directly from NASA
+        const response = await fetch(NASA_API_URL);
+
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
-        const events = await response.json();
+        
+        // --- 
+        // CHANGE 2: The data from NASA is an object { events: [...] }
+        // We must extract the 'events' array from it.
+        // ---
+        const data = await response.json();
+        const events = data.events; // This is the new, crucial line
 
-        // Hide the loading message
+        if (!events || events.length === 0) {
+            loadingMessage.innerText = "No active events found.";
+            return;
+        }
+
         loadingMessage.style.display = 'none';
 
-        // Loop through each event
         events.forEach(event => {
-            // --- 1. Create the Event Card (Same as before) ---
             const card = document.createElement('div');
             card.classList.add('event-card');
-
+            
             const eventDate = new Date(event.geometry[0].date).toLocaleDateString();
             const category = event.categories[0].title;
             const iconName = getCategoryIcon(category);
@@ -94,33 +92,39 @@ async function fetchNaturalEvents() {
             `;
             eventsContainer.appendChild(card);
 
-            // --- 2. NEW: Add a Marker to the Map ---
-            const coords = getEventCoordinates(event);
-            
-            if (coords) {
-                // Leaflet uses [latitude, longitude]
-                L.marker([coords.lat, coords.lon])
-                    .addTo(map)
-                    .bindPopup(`
-                        <strong>${event.title}</strong>
-                        <br>
-                        Category: ${category}
-                        <br>
-                        Date: ${eventDate}
-                    `);
+            // Add marker to map
+            if (map) {
+                const coords = getEventCoordinates(event);
+                if (coords) {
+                    L.marker([coords.lat, coords.lon])
+                        .addTo(map)
+                        .bindPopup(`
+                            <strong>${event.title}</strong>
+                            <br>
+                            Category: ${category}
+                            <br>
+                            Date: ${eventDate}
+                        `);
+                }
             }
         });
-
-        // Tell the lucide-icons library to draw all the new icons
+        
         lucide.createIcons();
 
     } catch (error) {
-        // Show a user-friendly error message
         console.error('Error fetching data:', error);
-        loadingMessage.innerHTML = '<p>Error: Could not fetch data. Is the server running?</p>';
+        // This is the error message you see, now with more detail
+        loadingMessage.innerHTML = `
+            <p style="color: red; font-weight: bold;">
+                Could not fetch data. Please try again later.
+            </p>
+            <p>Error: ${error.message}</p>
+        `;
     }
 }
 
 // --- Run on Page Load ---
-fetchNaturalEvents();
-
+// A small delay to ensure 'lucide' is ready
+setTimeout(() => {
+    fetchNaturalEvents();
+}, 100);
