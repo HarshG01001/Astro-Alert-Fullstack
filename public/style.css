@@ -1,0 +1,148 @@
+/* All previous styles are the same */
+:root {
+    --nasa-blue: #0b3d91;
+    --dark-text: #2c3e50;
+    --light-text: #576574;
+    --bg-light: #f4f7f6;
+    --card-bg: #ffffff;
+    --border-color: #e0e0e0;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background-color: var(--bg-light);
+    color: var(--dark-text);
+    margin: 0;
+    padding: 0;
+}
+
+header {
+    background: var(--nasa-blue);
+    color: white;
+    text-align: center;
+    padding: 2.5rem 1rem;
+    border-bottom: 4px solid #f39c12;
+}
+
+header h1 {
+    margin: 0;
+    font-size: 2.75rem;
+    font-weight: 700;
+}
+
+header p {
+    margin: 0.5rem 0 0;
+    font-size: 1.1rem;
+    opacity: 0.9;
+}
+
+main {
+    max-width: 1400px;
+    margin: 2rem auto;
+    padding: 0 1.5rem;
+}
+
+/* NEW: Style for the map container
+  - It MUST have a defined height to be visible.
+*/
+#map {
+    height: 500px; /* 500 pixels high */
+    width: 100%;
+    margin-bottom: 2.5rem; /* Space between map and cards */
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.07);
+}
+
+#loading-message {
+    text-align: center;
+    font-size: 1.2rem;
+    color: var(--light-text);
+    padding: 2rem;
+}
+
+#events-container {
+    display: grid;
+    /* Responsive grid: 1 column on mobile, up to 4 on wide desktops */
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 1.5rem;
+}
+
+/* All the card styles below are identical to before */
+.event-card {
+    background-color: var(--card-bg);
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.07);
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.event-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+}
+
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    border-bottom: 1px dashed var(--border-color);
+    padding-bottom: 1rem;
+    margin-bottom: 1rem;
+}
+
+.card-category {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 600;
+    color: var(--nasa-blue);
+    flex-shrink: 0;
+}
+
+.card-category i { /* This is for the lucide icons */
+    width: 20px;
+    height: 20px;
+}
+
+.card-date {
+    font-size: 0.9rem;
+    color: var(--light-text);
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+.event-card h3 {
+    margin: 0 0 1rem 0;
+    font-size: 1.25rem;
+    color: var(--dark-text);
+    line-height: 1.4;
+    height: 2.8em; 
+    overflow: hidden;
+}
+
+.card-footer {
+    margin-top: auto; 
+    padding-top: 1rem;
+}
+
+.event-card a {
+    display: inline-block;
+    background-color: var(--nasa-blue);
+    color: white;
+    text-decoration: none;
+    font-weight: 600;
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    text-align: center;
+    transition: background-color 0.2s ease;
+}
+
+.event-card a:hover {
+    background-color: #082f70;
+}
+

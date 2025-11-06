@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale-1.0">
+    <title>AstroAlert: Full-Stack Event Monitor</title>
+
+    <!-- 
+      NEW: Add Leaflet.js CSS and JS
+      This gives us the mapping functionality.
+    -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+     integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+     crossorigin=""/>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+     integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+     crossorigin=""></script>
+
+    <!-- Our main stylesheet -->
+    <link rel="stylesheet" href="style.css">
+    
+    <!-- Load an icon library for the categories -->
+    <script src="https://unpkg.com/lucide-react@0.395.0/dist/umd/lucide.js"></script>
+</head>
+<body>
+
+    <header>
+        <h1>AstroAlert 🛰️</h1>
+        <p>A Full-Stack Natural Event Monitor using Node.js & NASA EONET</p>
+    </header>
+
+    <main>
+        <!-- 
+          NEW: Add a <div> for our map.
+          JavaScript will target this ID.
+        -->
+        <div id="map"></div>
+
+        <div id="loading-message">
+            <p>Fetching live data from NASA...</p>
+        </div>
+        
+        <!-- This is where JavaScript will add the event "cards" -->
+        <div id="events-container">
+            <!-- Event cards will be generated here -->
+        </div>
+    </main>
+
+    <!-- Our main script file -->
+    <script src="script.js"></script>
+    <script>
+      // This script just runs the icon library
+      lucide.createIcons();
+    </script>
+</body>
+</html>
+
