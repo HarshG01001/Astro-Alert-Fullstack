@@ -5,7 +5,7 @@ const cors = require('cors');
 
 // --- App Initialization ---
 const app = express();
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 
 // --- Caching Variables ---
 let cachedData = null;    // This will hold our NASA event data
