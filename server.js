@@ -23,6 +23,7 @@ app.get('/api/events', async (req, res) => {
             headers: {
                 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36'
             }
+            timeout: 15000 // 15,000 milliseconds = 15 seconds
         });
 
         // 2. Check if the network request itself was successful
