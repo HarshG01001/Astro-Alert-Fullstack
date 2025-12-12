@@ -11,6 +11,7 @@ const HOST = '0.0.0.0';
 // Middleware
 app.use(cors());
 app.use(express.json());
+// This line automatically serves index.html at the root URL
 app.use(express.static(path.join(__dirname, 'public')));
 
 // Configure AI
@@ -59,11 +60,9 @@ app.post('/api/briefing', async (req, res) => {
     }
 });
 
-// Catch-all route
-app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'index.html'));
-});
+// (Deleted the crashing app.get(*) route)
 
 app.listen(PORT, HOST, () => {
     console.log(`Server running on ${HOST}:${PORT}`);
 });
+```
