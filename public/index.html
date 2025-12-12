@@ -2,56 +2,73 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale-1.0">
-    <title>AstroAlert: Full-Stack Event Monitor</title>
-
-    <!-- 
-      NEW: Add Leaflet.js CSS and JS
-      This gives us the mapping functionality.
-    -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-     integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
-     crossorigin=""/>
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
-     integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
-     crossorigin=""></script>
-
-    <!-- Our main stylesheet -->
-    <link rel="stylesheet" href="style.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AstroAlert | Intelligent Monitor</title>
     
-    <!-- Load an icon library for the categories -->
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    
+    <!-- Fonts & Icons -->
     <script src="https://unpkg.com/lucide-react@0.395.0/dist/umd/lucide.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
     <header>
-        <h1>AstroAlert 🛰️</h1>
-        <p>A Full-Stack Natural Event Monitor using Node.js & NASA EONET</p>
+        <div class="header-inner">
+            <div class="brand">
+                <i data-lucide="satellite" class="brand-icon"></i>
+                <div>
+                    <h1>ASTROALERT</h1>
+                    <div class="subtitle">Planetary Defense Console</div>
+                </div>
+            </div>
+            <div class="status-badge">
+                <span class="pulse"></span> SYSTEM ONLINE
+            </div>
+        </div>
     </header>
 
     <main>
-        <!-- 
-          NEW: Add a <div> for our map.
-          JavaScript will target this ID.
-        -->
-        <div id="map"></div>
-
-        <div id="loading-message">
-            <p>Fetching live data from NASA...</p>
+        <!-- Map Section (Full Width) -->
+        <div class="map-container">
+            <div id="map"></div>
+            <div class="map-overlay">SATELLITE FEED // LIVE</div>
         </div>
-        
-        <!-- This is where JavaScript will add the event "cards" -->
-        <div id="events-container">
-            <!-- Event cards will be generated here -->
+
+        <!-- Loading Spinner -->
+        <div id="loading-message">
+            <div class="spinner"></div>
+            <p>Scanning NASA EONET Data...</p>
+        </div>
+
+        <!-- Dashboard Grid: Events (Left) + Briefing (Right) -->
+        <div class="dashboard-grid">
+            
+            <!-- Left Column: Event Cards -->
+            <div class="events-column">
+                <div class="section-title">ACTIVE EVENTS STREAM</div>
+                <div id="events-container"></div>
+            </div>
+
+            <!-- Right Column: AI Briefing (Sticky) -->
+            <div class="sidebar-column">
+                <div id="briefing-container" class="briefing-panel">
+                    <div class="briefing-label"><i data-lucide="activity"></i> DAILY SITUATION REPORT</div>
+                    <div id="briefing-text" class="briefing-content">
+                        <span class="blink">Initializing global sensors...</span>
+                    </div>
+                </div>
+            </div>
+            
         </div>
     </main>
 
-    <!-- Our main script file -->
+    <!-- Scripts -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="script.js"></script>
-    <script>
-      // This script just runs the icon library
-      lucide.createIcons();
-    </script>
 </body>
 </html>
-

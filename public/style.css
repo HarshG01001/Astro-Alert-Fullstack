@@ -1,171 +1,177 @@
-/* All previous styles are the same */
 :root {
-    --nasa-blue: #0b3d91;
-    --dark-text: #2c3e50;
-    --light-text: #576574;
-    --bg-light: #f4f7f6;
-    --card-bg: #ffffff;
-    --border-color: #e0e0e0;
+    --bg-dark: #0f172a;
+    --bg-card: #1e293b;
+    --text-main: #f8fafc;
+    --text-muted: #94a3b8;
+    --accent: #06b6d4; /* Cyan */
+    --border: #334155;
 }
 
 body {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    background-color: var(--bg-light);
-    color: var(--dark-text);
     margin: 0;
-    padding: 0;
+    background-color: var(--bg-dark);
+    color: var(--text-main);
+    font-family: 'Inter', sans-serif;
 }
 
+/* Header */
 header {
-    background: var(--nasa-blue);
-    color: white;
-    text-align: center;
-    padding: 2.5rem 1rem;
-    border-bottom: 4px solid #f39c12;
+    background: rgba(15, 23, 42, 0.95);
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    backdrop-filter: blur(10px);
 }
 
-header h1 {
-    margin: 0;
-    font-size: 2.75rem;
-    font-weight: 700;
-}
-
-header p {
-    margin: 0.5rem 0 0;
-    font-size: 1.1rem;
-    opacity: 0.9;
-}
-
-main {
+.header-inner {
     max-width: 1400px;
-    margin: 2rem auto;
-    padding: 0 1.5rem;
+    margin: 0 auto;
+    padding: 1rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
 
-/* NEW: Style for the map container
-  - It MUST have a defined height to be visible.
-*/
-#map {
-    height: 500px; /* 500 pixels high */
-    width: 100%;
-    margin-bottom: 2.5rem; /* Space between map and cards */
+.brand { display: flex; align-items: center; gap: 1rem; }
+.brand-icon { width: 32px; height: 32px; color: var(--accent); }
+h1 { margin: 0; font-family: 'JetBrains Mono', monospace; font-size: 1.5rem; letter-spacing: -1px; }
+.subtitle { font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; }
+
+.status-badge {
+    background: rgba(6, 182, 212, 0.1);
+    color: var(--accent);
+    padding: 0.4rem 0.8rem;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    border: 1px solid rgba(6, 182, 212, 0.3);
+}
+
+.pulse { width: 6px; height: 6px; background: var(--accent); border-radius: 50%; animation: pulse 2s infinite; }
+@keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
+
+/* Map */
+main { max-width: 1400px; margin: 0 auto; padding: 2rem; }
+
+.map-container {
+    position: relative;
+    height: 500px;
     border-radius: 12px;
-    border: 1px solid var(--border-color);
-    box-shadow: 0 5px 15px rgba(0,0,0,0.07);
+    overflow: hidden;
+    border: 1px solid var(--border);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    margin-bottom: 2rem;
 }
 
-#loading-message {
-    text-align: center;
-    font-size: 1.2rem;
-    color: var(--light-text);
-    padding: 2rem;
+#map { height: 100%; width: 100%; background: #000; }
+
+.map-overlay {
+    position: absolute; top: 1rem; left: 1rem; z-index: 500;
+    background: rgba(0,0,0,0.8); color: var(--accent);
+    padding: 0.3rem 0.6rem; font-size: 0.7rem; font-weight: bold;
+    border: 1px solid var(--accent); pointer-events: none;
+}
+
+/* --- Dashboard Grid Layout --- */
+.dashboard-grid {
+    display: flex;
+    gap: 2rem;
+    align-items: flex-start; /* Important for sticky sidebar */
+}
+
+/* Left Column: Events */
+.events-column {
+    flex: 2; /* Occupies ~66% */
+}
+
+.section-title {
+    color: var(--text-muted);
+    font-size: 0.8rem;
+    font-weight: bold;
+    margin-bottom: 1rem;
+    letter-spacing: 1px;
 }
 
 #events-container {
     display: grid;
-    /* Responsive grid: 1 column on mobile, up to 4 on wide desktops */
-    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    /* Cards will fill the column */
+    grid-template-columns: 1fr; 
     gap: 1.5rem;
 }
 
-/* All the card styles below are identical to before */
-.event-card {
-    background-color: var(--card-bg);
+/* Right Column: Briefing Sidebar */
+.sidebar-column {
+    flex: 1; /* Occupies ~33% */
+    position: sticky;
+    top: 90px; /* Sticks below the header */
+}
+
+/* Briefing Panel Style */
+.briefing-panel {
+    background: var(--bg-card);
+    border: 1px solid var(--accent);
     border-radius: 12px;
-    border: 1px solid var(--border-color);
-    box-shadow: 0 5px 15px rgba(0,0,0,0.07);
     padding: 1.5rem;
-    display: flex;
-    flex-direction: column;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.2);
 }
 
-.event-card:hover {
-    transform: translateY(-8px);
-    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+.briefing-label { 
+    font-size: 0.8rem; color: var(--accent); font-weight: bold; 
+    margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem; 
+    border-bottom: 1px solid rgba(6, 182, 212, 0.2);
+    padding-bottom: 0.5rem;
 }
 
-.card-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 1rem;
-    border-bottom: 1px dashed var(--border-color);
-    padding-bottom: 1rem;
-    margin-bottom: 1rem;
+.briefing-content { 
+    font-family: 'JetBrains Mono', monospace; font-size: 0.9rem; 
+    color: #cbd5e1; line-height: 1.6; min-height: 1.5rem; 
 }
 
-.card-category {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    font-weight: 600;
-    color: var(--nasa-blue);
-    flex-shrink: 0;
-}
-
-.card-category i { /* This is for the lucide icons */
-    width: 20px;
-    height: 20px;
-}
-
-.card-date {
-    font-size: 0.9rem;
-    color: var(--light-text);
-    font-weight: 500;
-    white-space: nowrap;
-}
-
-.event-card h3 {
-    margin: 0 0 1rem 0;
-    font-size: 1.25rem;
-    color: var(--dark-text);
-    line-height: 1.4;
-    height: 2.8em; 
-    overflow: hidden;
-}
-
-.card-footer {
-    margin-top: auto; 
-    padding-top: 1rem;
-}
-
-.event-card a {
-    display: inline-block;
-    background-color: var(--nasa-blue);
-    color: white;
-    text-decoration: none;
-    font-weight: 600;
-    padding: 0.75rem 1.5rem;
+/* Event Cards */
+.event-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
     border-radius: 8px;
-    text-align: center;
-    transition: background-color 0.2s ease;
+    padding: 1.5rem;
+    transition: transform 0.2s, border-color 0.2s;
 }
 
-.event-card a:hover {
-    background-color: #082f70;
+.event-card:hover { transform: translateY(-3px); border-color: var(--accent); }
+.event-card.highlight { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent); }
+
+.card-header { display: flex; justify-content: space-between; margin-bottom: 0.5rem; font-size: 0.85rem; color: var(--text-muted); }
+.card-cat { color: var(--accent); font-weight: bold; display: flex; align-items: center; gap: 0.4rem; }
+
+h3 { margin: 0 0 1rem; font-size: 1.1rem; line-height: 1.4; }
+
+.ai-output {
+    background: rgba(0,0,0,0.3); padding: 1rem; margin-top: 1rem;
+    border-left: 2px solid var(--accent); font-size: 0.9rem; color: #cbd5e1;
+    display: none;
 }
 
-/* This is the highlight class we will add with JavaScript */
-.event-card.highlight {
-  /* This triggers the 'highlight-animation' below.
-    It runs once, lasts 1.5 seconds, and uses an 'ease-out' curve.
-  */
-  animation: highlight-animation 1.5s ease-out;
-}
+.card-actions { margin-top: 1rem; display: flex; gap: 0.5rem; }
+.btn { flex: 1; padding: 0.6rem; border-radius: 4px; border: none; font-size: 0.85rem; cursor: pointer; text-align: center; text-decoration: none; }
+.btn-source { background: #334155; color: #fff; }
+.btn-analyze { background: transparent; border: 1px solid var(--accent); color: var(--accent); }
+.btn-analyze:hover { background: var(--accent); color: #000; }
 
-/* This defines the actual animation steps */
-@keyframes highlight-animation {
-  /* Start */
-  0% {
-    background-color: var(--highlight-color);
-    transform: scale(1.02); /* Slightly larger */
-    box-shadow: 0 8px 25px rgba(255, 230, 100, 0.7);
-  }
-  /* End */
-  100% {
-    background-color: var(--card-bg-color); /* Back to normal */
-    transform: scale(1);
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.07);
-  }
+#loading-message { text-align: center; color: var(--text-muted); padding: 2rem; width: 100%; }
+.spinner { width: 30px; height: 30px; border: 3px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 1s infinite linear; margin: 0 auto 1rem; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.blink { animation: blink 1s infinite; }
+
+/* Mobile Responsiveness */
+@media (max-width: 900px) {
+    .dashboard-grid {
+        flex-direction: column-reverse; /* Put Briefing below cards on mobile */
+    }
+    .sidebar-column {
+        position: static;
+        width: 100%;
+    }
 }

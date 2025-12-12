@@ -1,27 +1,69 @@
-// --- Imports ---
 const express = require('express');
 const cors = require('cors');
-const path = require('path'); // Node.js 'path' module
+const path = require('path');
+require('dotenv').config(); 
+const { GoogleGenerativeAI } = require("@google/generative-ai");
 
-// --- App Initialization ---
 const app = express();
-// This is the correct way to get Render's port
 const PORT = process.env.PORT || 3000;
-// This is the host Render's docs recommend
 const HOST = '0.0.0.0';
 
-// --- Middleware ---
-// 1. Enable CORS for all routes (good practice)
+// Middleware
 app.use(cors());
-
-// 2. Tell Express to serve all files from the 'public' folder.
-// This ALSO serves 'index.html' at the root URL.
+app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
-// --- (The crashing 'app.get(*)' route has been removed) ---
+// Configure AI
+let genAI = null;
+if (process.env.GEMINI_API_KEY) {
+    genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+} else {
+    console.warn("⚠️ GEMINI_API_KEY is missing in .env file");
+}
 
-// --- Start the Server ---
+// --- AI Route 1: Individual Technical Analysis ---
+app.post('/api/analyze', async (req, res) => {
+    try {
+        if (!genAI) return res.status(503).json({ error: "AI unavailable." });
+        
+        const { title, category } = req.body;
+        const prompt = `Act as a Disaster Response Specialist. Analyze the event "${title}" (${category}). 
+        Provide a 2-sentence technical assessment of potential risks and severity.`;
+
+        const model = genAI.getGenerativeModel({ model: "gemini-pro"});
+        const result = await model.generateContent(prompt);
+        res.json({ analysis: await result.response.text() });
+    } catch (error) {
+        console.error("AI Error:", error);
+        res.status(500).json({ error: "Analysis failed." });
+    }
+});
+
+// --- AI Route 2: Daily Global Briefing ---
+app.post('/api/briefing', async (req, res) => {
+    try {
+        if (!genAI) return res.status(503).json({ error: "AI unavailable." });
+        
+        const { eventsSummary } = req.body;
+        const prompt = `You are a Planetary Defense AI. 
+        Here is a summary of active natural events: ${eventsSummary}.
+        Generate a "Daily Situation Report" (max 80 words). 
+        Summarize active threats and conclude with a global threat level (Low/Medium/High).`;
+
+        const model = genAI.getGenerativeModel({ model: "gemini-pro"});
+        const result = await model.generateContent(prompt);
+        res.json({ analysis: await result.response.text() });
+    } catch (error) {
+        console.error("AI Error:", error);
+        res.status(500).json({ error: "Briefing failed." });
+    }
+});
+
+// Catch-all route
+app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
 app.listen(PORT, HOST, () => {
-    // This will now listen on 0.0.0.0:10000 (on Render)
-    console.log(`AstroAlert server (static) running on ${HOST}:${PORT}`);
+    console.log(`Server running on ${HOST}:${PORT}`);
 });
