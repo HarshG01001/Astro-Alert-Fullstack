@@ -8,61 +8,62 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 const HOST = '0.0.0.0';
 
-// Middleware
 app.use(cors());
 app.use(express.json());
-// This line automatically serves index.html at the root URL
 app.use(express.static(path.join(__dirname, 'public')));
 
 // Configure AI
-let genAI = null;
-if (process.env.GEMINI_API_KEY) {
-    genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-} else {
-    console.warn("⚠️ GEMINI_API_KEY is missing in .env file");
-}
+const genAI = process.env.GEMINI_API_KEY 
+    ? new GoogleGenerativeAI(process.env.GEMINI_API_KEY) 
+    : null;
 
-// --- AI Route 1: Individual Technical Analysis ---
+// Route 1: Analysis
 app.post('/api/analyze', async (req, res) => {
     try {
         if (!genAI) return res.status(503).json({ error: "AI unavailable." });
-        
         const { title, category } = req.body;
-        const prompt = `Act as a Disaster Response Specialist. Analyze the event "${title}" (${category}). 
-        Provide a 2-sentence technical assessment of potential risks and severity.`;
-
-        const model = genAI.getGenerativeModel({ model: "gemini-pro"});
-        const result = await model.generateContent(prompt);
+        
+        const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash-lite"});
+        const result = await model.generateContent(`Analyze event: "${title}" (${category}). 1 sentence on severity.`);
         res.json({ analysis: await result.response.text() });
     } catch (error) {
-        console.error("AI Error:", error);
-        res.status(500).json({ error: "Analysis failed." });
+        if (error.status === 429) return res.json({ analysis: "⚠️ AI Busy." });
+        res.status(500).json({ error: "Failed" });
     }
 });
 
-// --- AI Route 2: Daily Global Briefing ---
+// Route 2: Detailed Global Forecast
 app.post('/api/briefing', async (req, res) => {
     try {
         if (!genAI) return res.status(503).json({ error: "AI unavailable." });
         
         const { eventsSummary } = req.body;
-        const prompt = `You are a Planetary Defense AI. 
-        Here is a summary of active natural events: ${eventsSummary}.
-        Generate a "Daily Situation Report" (max 80 words). 
-        Summarize active threats and conclude with a global threat level (Low/Medium/High).`;
+        
+        // Detailed, Elaborate Prompt
+        const prompt = `
+        Act as a Senior Planetary Hazard Analyst.
+        Input Data (Active Events by Region): ${eventsSummary}.
+        
+        Task: Write a comprehensive "Global Situation Forecast" (approx 150 words).
+        
+        Structure:
+        1. **Global Executive Summary**: A brief overview of the current state of the planet's natural events.
+        2. **Regional Hotspots**: Identify which continents are facing the highest activity and what type of events they are (e.g., "North America is currently the epicenter for wildfire activity...").
+        3. **Risk & Aftereffects**: Describe the potential severity and typical aftereffects for the dominant event types (e.g., air quality issues for fires, flooding for storms).
+        
+        Tone: Professional, scientific, and authoritative. Use HTML formatting (<br>, <strong>) for readability.
+        `;
 
-        const model = genAI.getGenerativeModel({ model: "gemini-pro"});
+        const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash-lite"});
         const result = await model.generateContent(prompt);
         res.json({ analysis: await result.response.text() });
+
     } catch (error) {
-        console.error("AI Error:", error);
-        res.status(500).json({ error: "Briefing failed." });
+        console.error("Briefing Error:", error.message);
+        res.status(500).json({ error: "Failed" });
     }
 });
-
-// (Deleted the crashing app.get(*) route)
 
 app.listen(PORT, HOST, () => {
     console.log(`Server running on ${HOST}:${PORT}`);
 });
-```
